@@ -49,7 +49,7 @@ open class ObservableViewModel : ViewModel(), Observable {
      * that changes should be marked with [Bindable] to generate a field in
      * `BR` to be used as `fieldId`.
      *
-     * @param fieldId The generated BR id for the Bindable field.
+     * @param fieldId The generated BR id for the Bindable field. 成员变量的view id
      */
     fun notifyPropertyChanged(fieldId: Int) {
         callbacks.notifyCallbacks(this, fieldId, null)

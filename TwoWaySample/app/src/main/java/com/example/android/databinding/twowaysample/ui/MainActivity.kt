@@ -43,44 +43,41 @@ const val SHARED_PREFS_KEY = "timer"
  */
 class MainActivity : AppCompatActivity() {
 
-    private val intervalTimerViewModel: IntervalTimerViewModel
-        by lazy {
-            ViewModelProviders.of(this, IntervalTimerViewModelFactory)
-                    .get(IntervalTimerViewModel::class.java)
-        }
+    private val intervalTimerViewModel: IntervalTimerViewModel by lazy {
+        ViewModelProviders.of(this, IntervalTimerViewModelFactory)
+                .get(IntervalTimerViewModel::class.java)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val binding: IntervalTimerBinding = DataBindingUtil.setContentView(
-                this, R.layout.interval_timer)
-        val viewmodel = intervalTimerViewModel
-        binding.viewmodel = viewmodel
+        val binding: IntervalTimerBinding = DataBindingUtil.setContentView(this, R.layout.interval_timer)
+        val viewModel = intervalTimerViewModel
+        binding.viewmodel = viewModel
 
         /* Save the user settings whenever they change */
-        observeAndSaveTimePerSet(
-                viewmodel.timePerWorkSet, R.string.prefs_timePerWorkSet)
-        observeAndSaveTimePerSet(
-                viewmodel.timePerRestSet, R.string.prefs_timePerRestSet)
+        observeAndSaveTimePerSet(viewModel.timePerWorkSet, R.string.prefs_timePerWorkSet)
+
+        observeAndSaveTimePerSet(viewModel.timePerRestSet, R.string.prefs_timePerRestSet)
 
         /* Number of sets needs a different  */
-        observeAndSaveNumberOfSets(viewmodel)
+        observeAndSaveNumberOfSets(viewModel)
 
-        if (savedInstanceState == null) {
+        if(savedInstanceState == null) {
             /* If this is the first run, restore shared settings */
-            restorePreferences(viewmodel)
-            observeAndSaveNumberOfSets(viewmodel)
+            restorePreferences(viewModel)
+            observeAndSaveNumberOfSets(viewModel)
         }
     }
 
     private fun observeAndSaveTimePerSet(timePerWorkSet: ObservableInt, prefsKey: Int) {
-        timePerWorkSet.addOnPropertyChangedCallback(
-                object : Observable.OnPropertyChangedCallback() {
+        timePerWorkSet.addOnPropertyChangedCallback(object :
+                Observable.OnPropertyChangedCallback() {
             @SuppressLint("CommitPrefEdits")
             override fun onPropertyChanged(observable: Observable?, p1: Int) {
-                Log.d("saveTimePerWorkSet", "Saving time-per-set preference")
-                val sharedPref =
-                        getSharedPreferences(SHARED_PREFS_KEY, Context.MODE_PRIVATE) ?: return
+                Log.d("saveTimePerWorkSet", "Saving time-per-set preference: $p1")
+                val sharedPref = getSharedPreferences(SHARED_PREFS_KEY, Context.MODE_PRIVATE) ?: return
+
                 sharedPref.edit().apply {
                     putInt(getString(prefsKey), (observable as ObservableInt).get())
                     commit()
@@ -90,25 +87,24 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun restorePreferences(viewModel: IntervalTimerViewModel) {
-        val sharedPref =
-                getSharedPreferences(SHARED_PREFS_KEY, Context.MODE_PRIVATE) ?: return
+        val sharedPref = getSharedPreferences(SHARED_PREFS_KEY, Context.MODE_PRIVATE) ?: return
         val timePerWorkSetKey = getString(R.string.prefs_timePerWorkSet)
         var wasAnythingRestored = false
-        if (sharedPref.contains(timePerWorkSetKey)) {
+        if(sharedPref.contains(timePerWorkSetKey)) {
             viewModel.timePerWorkSet.set(sharedPref.getInt(timePerWorkSetKey, 100))
             wasAnythingRestored = true
         }
         val timePerRestSetKey = getString(R.string.prefs_timePerRestSet)
-        if (sharedPref.contains(timePerRestSetKey)) {
+        if(sharedPref.contains(timePerRestSetKey)) {
             viewModel.timePerRestSet.set(sharedPref.getInt(timePerRestSetKey, 50))
             wasAnythingRestored = true
         }
         val numberOfSetsKey = getString(R.string.prefs_numberOfSets)
-        if (sharedPref.contains(numberOfSetsKey)) {
+        if(sharedPref.contains(numberOfSetsKey)) {
             viewModel.numberOfSets = arrayOf(0, sharedPref.getInt(numberOfSetsKey, 5))
             wasAnythingRestored = true
         }
-        if (wasAnythingRestored) Log.d("saveTimePerWorkSet", "Preferences restored")
+        if(wasAnythingRestored) Log.d("saveTimePerWorkSet", "Preferences restored")
         viewModel.stopButtonClicked()
     }
 
@@ -116,10 +112,9 @@ class MainActivity : AppCompatActivity() {
         viewModel.addOnPropertyChangedCallback(object : Observable.OnPropertyChangedCallback() {
             @SuppressLint("CommitPrefEdits")
             override fun onPropertyChanged(observable: Observable?, p1: Int) {
-                if (p1 == BR.numberOfSets) {
+                if(p1 == BR.numberOfSets) {
                     Log.d("saveTimePerWorkSet", "Saving number of sets preference")
-                    val sharedPref =
-                            getSharedPreferences(SHARED_PREFS_KEY, Context.MODE_PRIVATE) ?: return
+                    val sharedPref = getSharedPreferences(SHARED_PREFS_KEY, Context.MODE_PRIVATE) ?: return
                     sharedPref.edit().apply {
                         putInt(getString(R.string.prefs_numberOfSets), viewModel.numberOfSets[1])
                         commit()

@@ -85,7 +85,7 @@ class IntervalTimerViewModel(private val timer: Timer) : ObservableViewModel() {
         }
         set(value) {
             // These methods take care of calling notifyPropertyChanged()
-            if (value) startButtonClicked() else pauseButtonClicked()
+            if(value) startButtonClicked() else pauseButtonClicked()
         }
 
     /* The number of sets is handled using a custom two-way data binding approach.
@@ -103,18 +103,18 @@ class IntervalTimerViewModel(private val timer: Timer) : ObservableViewModel() {
         @Bindable get() {
             return arrayOf(numberOfSetsElapsed, numberOfSetsTotal)
         }
-    set(value: Array<Int>) {
-        // Only the second Int is being set
-        val newTotal = value[1]
-        if (newTotal == numberOfSets[1]) return // Break loop if there's no change
-        // Only update if it doesn't affect the current exercise
-        if (newTotal != 0 && newTotal > numberOfSetsElapsed) {
-            field = value
-            numberOfSetsTotal = newTotal
+        set(value: Array<Int>) {
+            // Only the second Int is being set
+            val newTotal = value[1]
+            if(newTotal == numberOfSets[1]) return // Break loop if there's no change
+            // Only update if it doesn't affect the current exercise
+            if(newTotal != 0 && newTotal > numberOfSetsElapsed) {
+                field = value
+                numberOfSetsTotal = newTotal
+            }
+            // Even if the input is empty, force a refresh of the view
+            notifyPropertyChanged(BR.numberOfSets)
         }
-        // Even if the input is empty, force a refresh of the view
-        notifyPropertyChanged(BR.numberOfSets)
-    }
 
     /**
      * Used to control some animations.
@@ -133,7 +133,7 @@ class IntervalTimerViewModel(private val timer: Timer) : ObservableViewModel() {
         } catch (e: NumberFormatException) {
             return
         }
-        if (!isRestTimeAndRunning()) {
+        if(!isRestTimeAndRunning()) {
             restTimeLeft.set(timePerRestSet.get())
         }
     }
@@ -147,7 +147,7 @@ class IntervalTimerViewModel(private val timer: Timer) : ObservableViewModel() {
         } catch (e: NumberFormatException) {
             return
         }
-        if (!timerRunning) {
+        if(!timerRunning) {
             workTimeLeft.set(timePerWorkSet.get())
         }
     }
@@ -169,7 +169,8 @@ class IntervalTimerViewModel(private val timer: Timer) : ObservableViewModel() {
 
     fun workTimeDecrease() = timePerSetIncrease(timePerWorkSet, -1, 10)
 
-    fun setsDecrease() { if (numberOfSetsTotal > numberOfSetsElapsed + 1) {
+    fun setsDecrease() {
+        if(numberOfSetsTotal > numberOfSetsElapsed + 1) {
             numberOfSetsTotal -= 1
             notifyPropertyChanged(BR.numberOfSets)
         }
@@ -201,10 +202,10 @@ class IntervalTimerViewModel(private val timer: Timer) : ObservableViewModel() {
      * @param sign  1 to increase, -1 to decrease.
      */
     private fun timePerSetIncrease(timePerSet: ObservableInt, sign: Int = 1, min: Int = 0) {
-        if (timePerSet.get() < 10 && sign < 0) return
+        if(timePerSet.get() < 10 && sign < 0) return
         // Increase the time in chunks
         roundTimeIncrease(timePerSet, sign, min)
-        if (state == TimerStates.STOPPED) {
+        if(state == TimerStates.STOPPED) {
             // If stopped, update the timers right away
             workTimeLeft.set(timePerWorkSet.get())
             restTimeLeft.set(timePerRestSet.get())
@@ -218,8 +219,7 @@ class IntervalTimerViewModel(private val timer: Timer) : ObservableViewModel() {
      * True if the work time has passed and we're currently resting.
      */
     private fun isRestTimeAndRunning(): Boolean {
-        return (state == TimerStates.PAUSED || state == TimerStates.STARTED)
-                && workTimeLeft.get() == 0
+        return (state == TimerStates.PAUSED || state == TimerStates.STARTED) && workTimeLeft.get() == 0
     }
 
     /**
@@ -227,13 +227,12 @@ class IntervalTimerViewModel(private val timer: Timer) : ObservableViewModel() {
      */
     private fun roundTimeIncrease(timePerSet: ObservableInt, sign: Int, min: Int) {
         val currentValue = timePerSet.get()
-        val newValue =
-        when {
-        // <10 Seconds - increase 1
+        val newValue = when {
+            // <10 Seconds - increase 1
             currentValue < 100 -> timePerSet.get() + sign * 10
-        // >10 seconds, 5-second increase
+            // >10 seconds, 5-second increase
             currentValue < 600 -> (round(currentValue / 50.0) * 50 + (50 * sign)).toInt()
-        // >60 seconds, 10-second increase
+            // >60 seconds, 10-second increase
             else -> (round(currentValue / 100.0) * 100 + (100 * sign)).toInt()
         }
         timePerSet.set(newValue.coerceAtLeast(min))
@@ -257,7 +256,7 @@ class IntervalTimerViewModel(private val timer: Timer) : ObservableViewModel() {
 
         val task = object : TimerTask() {
             override fun run() {
-                if (state == TimerStates.STARTED) {
+                if(state == TimerStates.STARTED) {
                     updateCountdowns()
                 }
             }
@@ -271,7 +270,7 @@ class IntervalTimerViewModel(private val timer: Timer) : ObservableViewModel() {
      * Pause the timer
      */
     private fun pauseButtonClicked() {
-        if (state == TimerStates.STARTED) {
+        if(state == TimerStates.STARTED) {
             startedToPaused()
         }
         notifyPropertyChanged(BR.timerRunning)
@@ -304,18 +303,18 @@ class IntervalTimerViewModel(private val timer: Timer) : ObservableViewModel() {
     }
 
     private fun updateCountdowns() {
-        if (state == TimerStates.STOPPED) {
+        if(state == TimerStates.STOPPED) {
             resetTimers()
             return
         }
 
-        val elapsed = if (state == TimerStates.PAUSED) {
+        val elapsed = if(state == TimerStates.PAUSED) {
             timer.getPausedTime()
         } else {
             timer.getElapsedTime()
         }
 
-        if (stage == StartedStages.RESTING) {
+        if(stage == StartedStages.RESTING) {
             updateRestCountdowns(elapsed)
         } else {
             // work
@@ -326,7 +325,7 @@ class IntervalTimerViewModel(private val timer: Timer) : ObservableViewModel() {
     private fun updateWorkCountdowns(elapsed: Long) {
         stage = StartedStages.WORKING
         val newTimeLeft = timePerWorkSet.get() - (elapsed / 100).toInt()
-        if (newTimeLeft <= 0) {
+        if(newTimeLeft <= 0) {
             workoutFinished()
         }
         workTimeLeft.set(newTimeLeft.coerceAtLeast(0))
@@ -337,10 +336,10 @@ class IntervalTimerViewModel(private val timer: Timer) : ObservableViewModel() {
         val newRestTimeLeft = timePerRestSet.get() - (elapsed / 100).toInt()
         restTimeLeft.set(newRestTimeLeft.coerceAtLeast(0))
 
-        if (newRestTimeLeft <= 0) { // Rest time is up
+        if(newRestTimeLeft <= 0) { // Rest time is up
             numberOfSetsElapsed += 1
             resetTimers()
-            if (numberOfSetsElapsed >= numberOfSetsTotal) { // End
+            if(numberOfSetsElapsed >= numberOfSetsTotal) { // End
                 timerFinished()
             } else { // End of set
                 setFinished()
@@ -393,9 +392,16 @@ private operator fun ObservableInt.plusAssign(value: Int) {
 }
 
 private operator fun ObservableInt.minusAssign(amount: Int) {
-    plusAssign(- amount)
+    plusAssign(-amount)
 }
 
-enum class TimerStates {STOPPED, STARTED, PAUSED}
+enum class TimerStates {
+    STOPPED,
+    STARTED,
+    PAUSED
+}
 
-enum class StartedStages {WORKING, RESTING}
+enum class StartedStages {
+    WORKING,
+    RESTING
+}

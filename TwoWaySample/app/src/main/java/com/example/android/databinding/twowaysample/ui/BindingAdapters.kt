@@ -62,15 +62,16 @@ object BindingAdapters {
      * @see [clearTextOnFocus] for a version without a listener.
      */
     @BindingAdapter("clearOnFocusAndDispatch")
-    @JvmStatic fun clearOnFocusAndDispatch(view: EditText, listener: View.OnFocusChangeListener?) {
+    @JvmStatic
+    fun clearOnFocusAndDispatch(view: EditText, listener: View.OnFocusChangeListener?) {
         view.onFocusChangeListener = View.OnFocusChangeListener { focusedView, hasFocus ->
             val textView = focusedView as TextView
-            if (hasFocus) {
+            if(hasFocus) {
                 // Delete contents of the EditText if the focus entered.
                 view.setTag(R.id.previous_value, textView.text)
                 textView.text = ""
             } else {
-                if (textView.text.isEmpty()) {
+                if(textView.text.isEmpty()) {
                     val tag: CharSequence? = textView.getTag(R.id.previous_value) as CharSequence
                     textView.text = tag ?: ""
                 }
@@ -89,8 +90,9 @@ object BindingAdapters {
      * ```
      */
     @BindingAdapter("clearTextOnFocus")
-    @JvmStatic fun EditText.clearTextOnFocus(enabled: Boolean) {
-        if (enabled) {
+    @JvmStatic
+    fun EditText.clearTextOnFocus(enabled: Boolean) {
+        if(enabled) {
             clearOnFocusAndDispatch(this, null)
         } else {
             this.onFocusChangeListener = null
@@ -104,13 +106,13 @@ object BindingAdapters {
      * this [BindingAdapter] sets it.
      */
     @BindingAdapter("hideKeyboardOnInputDone")
-    @JvmStatic fun hideKeyboardOnInputDone(view: EditText, enabled: Boolean) {
-        if (!enabled) return
+    @JvmStatic
+    fun hideKeyboardOnInputDone(view: EditText, enabled: Boolean) {
+        if(!enabled) return
         val listener = TextView.OnEditorActionListener { _, actionId, _ ->
-            if (actionId == EditorInfo.IME_ACTION_DONE) {
+            if(actionId == EditorInfo.IME_ACTION_DONE) {
                 view.clearFocus()
-                val imm = view.context.getSystemService(Context.INPUT_METHOD_SERVICE)
-                        as InputMethodManager
+                val imm = view.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
                 imm.hideSoftInputFromWindow(view.windowToken, 0)
             }
             false
@@ -137,8 +139,9 @@ object BindingAdapters {
      */
     @Suppress("unused")
     @BindingAdapter("invisibleUnless")
-    @JvmStatic fun invisibleUnless(view: View, visible: Boolean) {
-        view.visibility = if (visible) View.VISIBLE else View.INVISIBLE
+    @JvmStatic
+    fun invisibleUnless(view: View, visible: Boolean) {
+        view.visibility = if(visible) View.VISIBLE else View.INVISIBLE
     }
 
     /**
@@ -146,8 +149,9 @@ object BindingAdapters {
      */
     @Suppress("unused")
     @BindingAdapter("goneUnless")
-    @JvmStatic fun goneUnless(view: View, visible: Boolean) {
-        view.visibility = if (visible) View.VISIBLE else View.GONE
+    @JvmStatic
+    fun goneUnless(view: View, visible: Boolean) {
+        view.visibility = if(visible) View.VISIBLE else View.GONE
     }
 
     /**
@@ -156,10 +160,11 @@ object BindingAdapters {
      *
      * Also, this showcases how to deal with multiple API levels.
      */
-    @BindingAdapter(value=["android:max", "android:progress"], requireAll = true)
-    @JvmStatic fun updateProgress(progressBar: ProgressBar, max: Int, progress: Int) {
+    @BindingAdapter(value = ["android:max", "android:progress"], requireAll = true)
+    @JvmStatic
+    fun updateProgress(progressBar: ProgressBar, max: Int, progress: Int) {
         progressBar.max = max
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             progressBar.setProgress(progress, false)
         } else {
             progressBar.progress = progress
@@ -167,7 +172,8 @@ object BindingAdapters {
     }
 
     @BindingAdapter("loseFocusWhen")
-    @JvmStatic fun loseFocusWhen(view: EditText, condition: Boolean) {
-        if (condition) view.clearFocus()
+    @JvmStatic
+    fun loseFocusWhen(view: EditText, condition: Boolean) {
+        if(condition) view.clearFocus()
     }
 }
